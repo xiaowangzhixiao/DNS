@@ -118,21 +118,21 @@ ARCOUNT         an unsigned 16 bit integer specifying the number of
 
 struct DNSHeader
 {
-	uint_16 id;                     //标志
+	__uint16_t id;                     //标志
 
-	uint_16 QR : 1;             //Q or R
-	uint_16 OPCODE : 4;         //请求中有效，表明请求的类型
-	uint_16 AA : 1;             //authoritative answer，回应中有效，表明该服务器是权威回答
-	uint_16 TC : 1;             //可截断的 ( truncated)
-	uint_16 RD : 1;             //recursion desired，期望递归be set in a query and is copied into the response.
-	uint_16 RA : 1;             //如果名字服务器支持递归，则在响应中将该比特位置1
-	uint_16 Z : 3;               //0
-	uint_16 RCODE : 4;          //返回码 表明返回包的类型
+	__uint16_t QR : 1;             //Q or R
+	__uint16_t OPCODE : 4;         //请求中有效，表明请求的类型
+	__uint16_t AA : 1;             //authoritative answer，回应中有效，表明该服务器是权威回答
+	__uint16_t TC : 1;             //可截断的 ( truncated)
+	__uint16_t RD : 1;             //recursion desired，期望递归be set in a query and is copied into the response.
+	__uint16_t RA : 1;             //如果名字服务器支持递归，则在响应中将该比特位置1
+	__uint16_t Z : 3;               //0
+	__uint16_t RCODE : 4;          //返回码 表明返回包的类型
 
-	uint_16 QDCOUNT;
-	uint_16 ANCOUNT;
-	uint_16 NSCOUNT;
-	uint_16 ARCOUNT;
+	__uint16_t QDCOUNT;
+	__uint16_t ANCOUNT;
+	__uint16_t NSCOUNT;
+	__uint16_t ARCOUNT;
 };
 
 

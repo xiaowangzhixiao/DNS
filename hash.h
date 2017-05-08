@@ -13,7 +13,7 @@ typedef struct HashNode{
 	struct HashNode * next;
 }HashNode;
 
-typedef struct HashTable{
+typedef struct{
 	HashNode ** bucket;
 	unsigned int size;
 	int length;

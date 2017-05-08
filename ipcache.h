@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "hash.h"
+#include "set.h"
 
 #ifndef DNS_IPCACHE_H
 #define DNS_IPCACHE_H
@@ -12,11 +13,12 @@ typedef HashTable IpCache;
 
 IpCache IpCache_init();
 
+//从文件中读取ip和域名的映射
 void IpCache_read(IpCache ipCache, char filename[]);
 
-uint16_t IpCache_search(IpCache ipCache, char host[]);
+uint32_t IpCache_search(IpCache ipCache, char *host);
 
-void IpCache_insert(IpCache ipCache, char host[], __int16_t ip);
+void IpCache_insert(IpCache ipCache, char *host, uint32_t ip);
 
 void IpCache_destory(IpCache ipCache);
 

@@ -118,14 +118,14 @@ ARCOUNT         an unsigned 16 bit integer specifying the number of
 
 */
 
-struct DNSHeader
+typedef struct
 {
 	uint16_t id;                     //标志
 
 	uint16_t QR : 1;             //Q or R
 	uint16_t OPCODE : 4;         //请求中有效，表明请求的类型
 	uint16_t AA : 1;             //authoritative answer，回应中有效，表明该服务器是权威回答
-	uint16_t TC : 1;             //可截断的 ( truncated)
+	uint16_t TC : 1;             //可截断的 (truncated)
 	uint16_t RD : 1;             //recursion desired，期望递归be set in a query and is copied into the response.
 	uint16_t RA : 1;             //如果名字服务器支持递归，则在响应中将该比特位置1
 	uint16_t Z : 3;               //0
@@ -135,9 +135,42 @@ struct DNSHeader
 	uint16_t ANCOUNT;
 	uint16_t NSCOUNT;
 	uint16_t ARCOUNT;
-};
+} DNSHeader;
 
+/*
+ * @note 取出DNS头
+ */
+DNSHeader DNS_getHead(char *buff);
 
+/*
+ * @note 得到域名
+ */
+char * DNS_getHost(char *buff);
+
+/*
+ * @note 将一个提问包标志位QR改为0，表示回答，尾部加入回答资源
+ *
+ * @param   char *buff 接收到的报文
+ *          uint32_t ip 查到的ip
+ *
+ * @return 返回报文的长度
+ */
+size_t DNS_addAnswer(char *buff, uint32_t ip);
+
+/*
+ * @note 将报文中的id改了
+ *
+ * @return 返回报文的长度
+ */
+size_t DNS_changeId(char *buff, uint16_t id);
+
+/*
+ * @note 返回码置3，表示域名不存在
+ *       确保AA为1，权威回答返回码3才会有效
+ *
+ * @return 返回报文的长度
+ */
+size_t DNS_errorAnswer(char *buff);
 
 /*4.2.1. UDP usage
 

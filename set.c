@@ -47,4 +47,9 @@ void **HashSet_toArray(HashSet hashSet, void *end)
 	return array;
 }
 
+void HashSet_map(HashSet hashSet, void (*apply)(const void *, void **, void *), void *c1)
+{
+	HashTable_map(hashSet,apply,c1);
+}
+
 

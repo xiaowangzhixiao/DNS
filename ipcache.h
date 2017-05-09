@@ -16,7 +16,16 @@ IpCache IpCache_init();
 //从文件中读取ip和域名的映射
 void IpCache_read(IpCache ipCache, char filename[]);
 
-uint32_t IpCache_search(IpCache ipCache, char *host);
+/*
+ * @note 查找域名对应的ip地址
+ *
+ * @param IpCache ipCache  ip缓存表
+ *        char *host       域名
+ *
+ * @return 返回ip地址指针组成的数组，以NULL结尾，如查询不到，则返回NULL
+ *
+ */
+uint32_t **IpCache_search(IpCache ipCache, char *host);
 
 void IpCache_insert(IpCache ipCache, char *host, uint32_t ip);
 

@@ -37,6 +37,8 @@ void * HashSet_insert(HashSet  hashSet, void * member);
  */
 void * HashSet_remove(HashSet hashSet, void *member);
 
+void HashSet_map(HashSet hashSet, void (*apply)(const void *key, void **value, void *c1), void *c1);
+
 void **HashSet_toArray(HashSet hashSet, void *end);
 
 #endif //DNS_SET_H

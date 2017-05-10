@@ -69,6 +69,9 @@ int main(int argc, char **argv)
 		}
 	}
 	DNS dns;
+	dns.host = NULL;
+	dns.buff = NULL;
+	dns.size_n = 0;
 
 	/*****************UDP服务器开启***********************/
 	socketfd = socket(AF_INET,SOCK_DGRAM,0);//UDP报文流
@@ -117,7 +120,6 @@ int main(int argc, char **argv)
 		}
 
 		printf("receive from: %s\n",inet_ntop(AF_INET,&client_addr.sin_addr.s_addr,addrstr,256));
-
 
 		dns.size_n = (size_t) size_n;
 		dns= DNS_getHead(dns);
@@ -184,7 +186,7 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-
+		DNS_clear(dns);
 	}
 
 	close(socketfd);

@@ -137,15 +137,24 @@ typedef struct
 	uint16_t ARCOUNT;
 } DNSHeader;
 
+typedef struct
+{
+	char * buff;
+	DNSHeader dnsHeader;
+	char * host;
+	uint32_t ip;
+	size_t size_n;
+}DNS;
+
 /*
  * @note 取出DNS头
  */
-DNSHeader DNS_getHead(char *buff);
+DNS DNS_getHead(DNS dns);
 
 /*
  * @note 得到域名
  */
-char * DNS_getHost(char *buff);
+DNS DNS_getHost(DNS dns);
 
 /*
  * @note 将一个提问包标志位QR改为0，表示回答，尾部加入回答资源
@@ -153,24 +162,26 @@ char * DNS_getHost(char *buff);
  * @param   char *buff 接收到的报文
  *          uint32_t ip 查到的ip
  *
- * @return 返回报文的长度
+ * @return 处理后的DNS包
  */
-size_t DNS_addAnswer(char *buff, uint32_t ip);
+DNS DNS_addAnswer(DNS dns, uint32_t ip);
 
 /*
  * @note 将报文中的id改了
  *
- * @return 返回报文的长度
+ * @return 处理后的DNS包
  */
-size_t DNS_changeId(char *buff, uint16_t id);
+DNS DNS_changeId(DNS dns, uint16_t id);
 
 /*
  * @note 返回码置3，表示域名不存在
  *       确保AA为1，权威回答返回码3才会有效
  *
- * @return 返回报文的长度
+ * @return 处理后的DNS包
  */
-size_t DNS_errorAnswer(char *buff);
+DNS DNS_errorAnswer(DNS dns);
+
+void DNS_clear(DNS dns);
 
 /*4.2.1. UDP usage
 

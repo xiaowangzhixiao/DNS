@@ -68,6 +68,7 @@ int main(int argc, char **argv)
 			exit(-1);
 		}
 	}
+	DNS dns;
 
 	/*****************UDP服务器开启***********************/
 	socketfd = socket(AF_INET,SOCK_DGRAM,0);//UDP报文流
@@ -91,6 +92,7 @@ int main(int argc, char **argv)
 	}
 
 	char buff[65536];
+	dns.buff = buff;
 	char addrstr[256];
 	struct sockaddr_in client_addr;
 	size_t client_len = sizeof(client_addr);
@@ -107,8 +109,8 @@ int main(int argc, char **argv)
 
 		memset(buff,0,65536);
 		memset(&client_addr,0,client_len);
-		ssize_t n = recvfrom(socketfd, buff, 65536, 0, (struct sockaddr *) &client_addr, (socklen_t *) &client_len);
-		if (n < 0)
+		ssize_t size_n = recvfrom(socketfd, buff, 65536, 0, (struct sockaddr *) &client_addr, (socklen_t *) &client_len);
+		if (size_n < 0)
 		{
 			fprintf(stderr, "recvfrom: %s\n", strerror(errno));
 			exit(1);
@@ -116,21 +118,23 @@ int main(int argc, char **argv)
 
 		printf("receive from: %s\n",inet_ntop(AF_INET,&client_addr.sin_addr.s_addr,addrstr,256));
 
-		DNSHeader dnsHeader = DNS_getHead(buff);
-		if (dnsHeader.QR == 1)  //提问报文
+
+		dns.size_n = (size_t) size_n;
+		dns= DNS_getHead(dns);
+		if (dns.dnsHeader.QR == 1)  //提问报文
 		{
 			if (debug1)
 			{
 			    printf("receive a question\n");
 			}
 
-			char *host = DNS_getHost(buff);
-			uint32_t **ipArray = IpCache_search(ipCache,host);
+			dns = DNS_getHost(dns);
+			uint32_t **ipArray = IpCache_search(ipCache,dns.host);
 			if (ipArray == NULL || ipArray[0] == NULL)  //本地缓存表中未查询到
 			{
-				IdMap_insert(idMap,id++,client_addr,dnsHeader.id);//添加映射
-				size_t size_n = DNS_changeId(buff,id);//更改id
-				if(sendto(socketfd, buff, size_n, 0, (const struct sockaddr *) &up_addr, sizeof(up_addr)) <0)
+				IdMap_insert(idMap,id++,client_addr,dns.dnsHeader.id);//添加映射
+				dns = DNS_changeId(dns,id);//更改id
+				if(sendto(socketfd, buff, dns.size_n, 0, (const struct sockaddr *) &up_addr, sizeof(up_addr)) < 0)
 				{
 					fprintf(stderr, "sendto: %s\n", strerror(errno));
 					exit(1);
@@ -138,16 +142,15 @@ int main(int argc, char **argv)
 			}
 			else                                        //本地缓存表中查询到
 			{
-				size_t size_n;
 				if (*(ipArray[0]) == 0)   //非法地址
 				{
-					size_n = DNS_errorAnswer(buff);//返回找不到域名
+					dns = DNS_errorAnswer(dns);//返回找不到域名
 				}else{
-					size_n = DNS_addAnswer(buff, *(ipArray[0]));//只加一个ip地址进去
+					dns = DNS_addAnswer(dns, *(ipArray[0]));//只加一个ip地址进去
 				}
 
 				//发送回包
-				if(sendto(socketfd, buff, size_n, 0, (const struct sockaddr *) &client_addr, (socklen_t) client_len) <0)
+				if(sendto(socketfd, buff, dns.size_n, 0, (const struct sockaddr *) &client_addr, (socklen_t) client_len) < 0)
 				{
 					fprintf(stderr, "sendto: %s\n", strerror(errno));
 					exit(1);
@@ -160,11 +163,11 @@ int main(int argc, char **argv)
 				printf("receive a answer\n");
 			}
 
-			IpId *ipId = IdMap_search(idMap,dnsHeader.id);
+			IpId *ipId = IdMap_search(idMap,dns.dnsHeader.id);
 			if (ipId != NULL)                               //找到映射
 			{
-				size_t size = DNS_changeId(buff,ipId->id);
-				if(sendto(socketfd, buff, size, 0, (const struct sockaddr *) &(ipId->clientAddr), sizeof(ipId->clientAddr)) <0)
+				dns = DNS_changeId(dns,ipId->id);
+				if(sendto(socketfd, buff, dns.size_n, 0, (const struct sockaddr *) &(ipId->clientAddr), sizeof(ipId->clientAddr)) < 0)
 				{
 					fprintf(stderr, "sendto: %s\n", strerror(errno));
 					exit(1);

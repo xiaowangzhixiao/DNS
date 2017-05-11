@@ -13,7 +13,7 @@ int cmpId(const void *x, const void *y){
 	return (*(uint16_t *)x)-(*(uint16_t *)y);
 }
 
-void freeKey(const void *key){
+static void freeKey(const void *key){
 	free((void *)key);
 }
 

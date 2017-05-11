@@ -30,7 +30,8 @@ HashTable HashTable_create(int hint, int (*cmp)(const void *, const void *), uns
 
 	//确定bucket的数目，分配内存，bucket内存紧跟着hashTable
 	for (i = 0; primes[i] < hint; ++i);
-	hashTable = malloc(sizeof(*hashTable)+primes[i-1]+sizeof(hashTable->bucket[0]));
+	hashTable = malloc(sizeof(*hashTable)+primes[i-1]*sizeof(HashNode));
+
 
 	//初始化
 	hashTable->size = primes[i-1];

@@ -34,7 +34,7 @@ int cmpIp(const void *x, const void *y){
 	return (*(uint32_t *)x)-(*(uint32_t *)y);
 }
 
-void freeKey(const void *key){
+static void freeKey(const void *key){
 	free((void *)key);
 }
 

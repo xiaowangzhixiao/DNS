@@ -131,31 +131,34 @@ int main(int argc, char **argv)
 			}
 
 			dns = DNS_getHost(dns);
-			uint32_t **ipArray = IpCache_search(ipCache,dns.host);
-			if (ipArray == NULL || ipArray[0] == NULL)  //本地缓存表中未查询到
+			if (dns.QTYPE == 1 && dns.QCLASS == 1)//其他问题类型不管
 			{
-				IdMap_insert(idMap,id++,client_addr,dns.dnsHeader.id);//添加映射
-				dns = DNS_changeId(dns,id);//更改id
-				if(sendto(socketfd, buff, dns.size_n, 0, (const struct sockaddr *) &up_addr, sizeof(up_addr)) < 0)
+				uint32_t **ipArray = IpCache_search(ipCache,dns.host);
+				if (ipArray == NULL || ipArray[0] == NULL)  //本地缓存表中未查询到
 				{
-					fprintf(stderr, "sendto: %s\n", strerror(errno));
-					exit(1);
+					IdMap_insert(idMap,id++,client_addr,dns.dnsHeader.id);//添加映射
+					dns = DNS_changeId(dns,id);//更改id
+					if(sendto(socketfd, buff, dns.size_n, 0, (const struct sockaddr *) &up_addr, sizeof(up_addr)) < 0)
+					{
+						fprintf(stderr, "sendto: %s\n", strerror(errno));
+						exit(1);
+					}
 				}
-			}
-			else                                        //本地缓存表中查询到
-			{
-				if (*(ipArray[0]) == 0)   //非法地址
+				else                                        //本地缓存表中查询到
 				{
-					dns = DNS_errorAnswer(dns);//返回找不到域名
-				}else{
-					dns = DNS_addAnswer(dns, *(ipArray[0]));//只加一个ip地址进去
-				}
+					if (*(ipArray[0]) == 0)   //非法地址
+					{
+						dns = DNS_errorAnswer(dns);//返回找不到域名
+					}else{
+						dns = DNS_addAnswer(dns, *(ipArray[0]));//只加一个ip地址进去
+					}
 
-				//发送回包
-				if(sendto(socketfd, buff, dns.size_n, 0, (const struct sockaddr *) &client_addr, (socklen_t) client_len) < 0)
-				{
-					fprintf(stderr, "sendto: %s\n", strerror(errno));
-					exit(1);
+					//发送回包
+					if(sendto(socketfd, buff, dns.size_n, 0, (const struct sockaddr *) &client_addr, (socklen_t) client_len) < 0)
+					{
+						fprintf(stderr, "sendto: %s\n", strerror(errno));
+						exit(1);
+					}
 				}
 			}
 		} else                  //回答报文
@@ -186,7 +189,7 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		DNS_clear(dns);
+		DNS_clear(&dns);
 	}
 
 	close(socketfd);

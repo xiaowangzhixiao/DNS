@@ -123,14 +123,21 @@ typedef struct
 {
 	uint16_t id;                     //标志
 
-	uint16_t QR : 1;             //Q or R
-	uint16_t OPCODE : 4;         //请求中有效，表明请求的类型
-	uint16_t AA : 1;             //authoritative answer，回应中有效，表明该服务器是权威回答
-	uint16_t TC : 1;             //可截断的 (truncated)
-	uint16_t RD : 1;             //recursion desired，期望递归be set in a query and is copied into the response.
-	uint16_t RA : 1;             //如果名字服务器支持递归，则在响应中将该比特位置1
-	uint16_t Z : 3;               //0
 	uint16_t RCODE : 4;          //返回码 表明返回包的类型
+
+	uint16_t Z : 3;               //0
+
+	uint16_t RA : 1;             //如果名字服务器支持递归，则在响应中将该比特位置1
+
+	uint16_t RD : 1;             //recursion desired，期望递归be set in a query and is copied into the response.
+
+	uint16_t TC : 1;             //可截断的 (truncated)
+
+	uint16_t AA : 1;             //authoritative answer，回应中有效，表明该服务器是权威回答
+
+	uint16_t OPCODE : 4;         //请求中有效，表明请求的类型
+
+	uint16_t QR : 1;             //Q or R
 
 	uint16_t QDCOUNT;
 	uint16_t ANCOUNT;

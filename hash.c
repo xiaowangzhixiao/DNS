@@ -23,15 +23,14 @@ HashTable HashTable_create(int hint, int (*cmp)(const void *, const void *), uns
 {
 	HashTable hashTable;
 	int i;
-	static unsigned int primes[] = {19, 509, 1021, 2053, 4093, 8191, 16381, 32771, 65521, INT_MAX};
+	static unsigned int primes[] = {509, 509, 1021, 2053, 4093, 8191, 16381, 32771, 65521, INT_MAX};
 
 	//一进入函数先进行参数的检查
 	assert(hint >= 0);
 
 	//确定bucket的数目，分配内存，bucket内存紧跟着hashTable
-	for (i = 0; primes[i] < hint; ++i);
+	for (i = 1; primes[i] < hint; ++i);
 	hashTable = malloc(sizeof(*hashTable)+primes[i-1]*sizeof(HashNode));
-
 
 	//初始化
 	hashTable->size = primes[i-1];
@@ -76,13 +75,14 @@ void *HashTable_insert(HashTable hashTable, const void *key, void *value)
 {
 	void *prev = NULL;//之前的值
 	HashNode *p;
-	int index;
+	unsigned int index;
 
 	assert(hashTable);
 	assert(key);
 
 	//search hashTable for key
 	index = hashTable->hash(key) % hashTable->size;
+	//printf("insert index:%d\n", index);
 	for(p = hashTable->bucket[index]; p; p = p->next)
 	{
 		if (hashTable->cmp(key, p->key) == 0)
@@ -111,13 +111,14 @@ void *HashTable_insert(HashTable hashTable, const void *key, void *value)
 
 void *HashTable_get(HashTable hashTable, const void *key)
 {
-	int index;
+	unsigned int index;
 	HashNode *p;
 
 	assert(hashTable);
 	assert(key);
 
 	index = hashTable->hash(key) % hashTable->size;
+	//printf("get index:%d\n", index);
 	for(p = hashTable->bucket[index]; p; p = p->next)
 	{
 		if (hashTable->cmp(key, p->key) == 0)
@@ -132,17 +133,21 @@ void *HashTable_get(HashTable hashTable, const void *key)
 void *HashTable_remove(HashTable hashTable, const void *key)
 {
 	HashNode **pp;
-	int index;
+	unsigned int index;
 
 	assert(hashTable);
 	assert(key);
 
+	//printf("key:%d\n", *(int *) key);
+
 	hashTable->timestamp++;
-	index = (hashTable->hash)(key);
-	for(pp = &hashTable->bucket[index];*pp; pp = &((*pp)->next))
-		if ((hashTable->cmp)(key,(*pp)->key) == 0)
+	index = (hashTable->hash)(key) % hashTable->size;
+	//printf("index:%d\n", index);
+	for (pp = &hashTable->bucket[index]; *pp; pp = &((*pp)->next))
+	{
+		if ((hashTable->cmp)(key, (*pp)->key) == 0)
 		{
-		    HashNode *p = *pp;
+			HashNode *p = *pp;
 			void *value = p->value;
 			*pp = p->next;
 			(hashTable->freeKey)(p->key);
@@ -150,6 +155,7 @@ void *HashTable_remove(HashTable hashTable, const void *key)
 			hashTable->length--;
 			return value;
 		}
+	}
 
 	return NULL;
 }

@@ -59,8 +59,8 @@ void IpCache_read(IpCache ipCache, char filename[])
 		exit(-1);
 	}
 
-	fscanf(readfile, " %s", hostbuff);
 	fscanf(readfile, " %s", ipbuff);
+	fscanf(readfile, " %s", hostbuff);
 	while (!feof(readfile))
 	{
 		host = strdup(hostbuff);
@@ -79,7 +79,8 @@ void IpCache_read(IpCache ipCache, char filename[])
 		HashSet tmpSet = HashTable_get(ipCache,host);
 		if (tmpSet == NULL)
 		{
-			tmpSet = HashSet_create(5,cmpIp,ipHash);
+			tmpSet = HashSet_create(100,cmpIp,ipHash);
+			HashSet_insert(tmpSet,ip);
 			HashTable_insert(ipCache,host,tmpSet);
 		}
 		else
@@ -87,8 +88,8 @@ void IpCache_read(IpCache ipCache, char filename[])
 			free(host);
 			HashSet_insert(tmpSet,ip);
 		}
-		fscanf(readfile, " %s", hostbuff);
 		fscanf(readfile, " %s", ipbuff);
+		fscanf(readfile, " %s", hostbuff);
 	}
 
 }

@@ -11,7 +11,7 @@
 #define DNS_IDMAP_H
 
 typedef HashTable IdMap;
-#define AGE 60
+#define AGE 30
 
 typedef struct {
 	struct sockaddr_in clientAddr;
@@ -28,7 +28,7 @@ void IdMap_insert(IdMap idMap, uint16_t id, struct sockaddr_in clientAddr,uint16
 
 void IdMap_update(IdMap idMap);
 
-void IdMap_remove(IdMap idMap, uint16_t id);
+IpId * IdMap_remove(IdMap idMap, uint16_t id);
 
 void IdMap_destory(IdMap idMap);
 

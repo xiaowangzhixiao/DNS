@@ -14,7 +14,7 @@ int cmpId(const void *x, const void *y){
 }
 
 static void freeKey(const void *key){
-	free((void *)key);
+
 }
 
 unsigned int idHash(const void *key)
@@ -96,9 +96,11 @@ void IdMap_update(IdMap idMap)
 	free(idArray);
 }
 
-void IdMap_remove(IdMap idMap, uint16_t id)
+IpId * IdMap_remove(IdMap idMap, uint16_t id)
 {
-	HashTable_remove(idMap, &id);
+	IpId *ipId;
+	ipId = HashTable_remove(idMap, &id);
+	return ipId;
 }
 
 

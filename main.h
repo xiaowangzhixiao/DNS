@@ -7,8 +7,6 @@
 #ifndef DNS_MAIN_H_H
 #define DNS_MAIN_H_H
 
-extern bool debug1;
-
-extern bool debug2;
+extern int debug;
 
 #endif //DNS_MAIN_H_H

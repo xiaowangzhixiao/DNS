@@ -1,6 +1,9 @@
 //
 // Created by wangzhi on 17-5-10.
 //
+
+#include "main.h"
+
 #include "DNS.h"
 #include <netdb.h>
 #include <stdio.h>
@@ -8,7 +11,7 @@
 #include <assert.h>
 #include <malloc.h>
 
-static void updataHead(DNSHeader dnsHeader, char *buff)
+static void updateHead(DNSHeader dnsHeader, char *buff)
 {
 	uint16_t temp;
 
@@ -33,8 +36,9 @@ DNS DNS_getHead(DNS dns)
 {
 	uint16_t temp;
 	dns.dnsHeader.id = ntohs(*(uint16_t *)dns.buff);
-	temp = ntohs(*(uint16_t *)(dns.buff+2));
-	memcpy(((void *)&(dns.dnsHeader))+2,&temp,sizeof(temp));
+	memcpy(&temp,dns.buff+2,sizeof(temp));
+	temp = ntohs(temp);
+	memcpy(((char *)&(dns.dnsHeader))+2,&temp,sizeof(temp));
 	dns.dnsHeader.QDCOUNT = ntohs(*(uint16_t *)(dns.buff + 4));
 	dns.dnsHeader.ANCOUNT = ntohs(*(uint16_t *)(dns.buff + 6));
 	dns.dnsHeader.NSCOUNT = ntohs(*(uint16_t *)(dns.buff + 8));
@@ -90,8 +94,10 @@ DNS DNS_addAnswer(DNS dns, uint32_t ip)
 {
 	uint16_t uint16;
 	uint32_t uint32;
-	dns.dnsHeader.ARCOUNT = 1;
-	updataHead(dns.dnsHeader,dns.buff);
+	dns.dnsHeader.ANCOUNT = 1;
+	dns.dnsHeader.QR = 1;
+	dns.dnsHeader.RCODE = 0;
+	updateHead(dns.dnsHeader,dns.buff);
 	dns.ip = ip;
 	memcpy(dns.buff+dns.answerOffset,dns.buff+12, (size_t) dns.questionLength);//资源中的域名和类型和类
 	uint32 = htonl(172800);//两天的生存期
@@ -109,7 +115,7 @@ DNS DNS_addAnswer(DNS dns, uint32_t ip)
 DNS DNS_changeId(DNS dns, uint16_t id)
 {
 	dns.dnsHeader.id = id;
-	updataHead(dns.dnsHeader,dns.buff);
+	updateHead(dns.dnsHeader,dns.buff);
 	return dns;
 }
 
@@ -117,7 +123,7 @@ DNS DNS_errorAnswer(DNS dns)
 {
 	dns.dnsHeader.RCODE = 3;
 	dns.dnsHeader.AA = 1;
-	updataHead(dns.dnsHeader,dns.buff);
+	updateHead(dns.dnsHeader,dns.buff);
 	return dns;
 }
 
